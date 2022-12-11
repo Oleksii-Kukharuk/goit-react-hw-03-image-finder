@@ -8,5 +8,5 @@ export async function getImeges(searchQuery, page) {
   const { data } = await axios.get(
     `?q=${searchQuery}&page=${page}&${API_KEY}&${DEFAULT_OPTIONS}`
   );
-  return data.hits;
+  return data;
 }

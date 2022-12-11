@@ -4,25 +4,37 @@ import { ImageGalleryItem } from 'components/ImageGalleryItem/ImageGalleryItem';
 import { getImeges } from 'components/Api/Api';
 import { GalleryList } from './ImageGallery.styled';
 import { Vortex } from 'react-loader-spinner';
-// import 'react-loader-spinner/dist/loader/css/react-spinner-loader.css';
+import { Button } from 'components/Button/Button';
+import { toast } from 'react-toastify';
 
 export class ImageGallery extends Component {
   state = {
     page: 1,
+    pages: 0,
     data: [],
     isLoading: false,
     error: null,
   };
 
-  async componentDidUpdate(prevProps) {
+  async componentDidUpdate(prevProps, prevState) {
     const { searchQuery } = this.props;
     const { page } = this.state;
 
     if (prevProps.searchQuery !== searchQuery) {
+      this.setState({ page: 1 });
+    }
+    if (prevProps.searchQuery !== searchQuery || prevState.page !== page) {
       this.setState({ isLoading: true });
       try {
         const data = await getImeges(searchQuery, page);
-        this.setState({ data });
+        if (data.totalHits === 0) {
+          toast('нема зображень, спробуй ще');
+        }
+        const totalPages = Math.round(data.total / 12);
+        this.setState({ pages: totalPages });
+        this.setState({
+          data: data.hits,
+        });
       } catch (error) {
         this.setState({ error: 'от халепа, додаток впав' });
       } finally {
@@ -31,22 +43,29 @@ export class ImageGallery extends Component {
     }
   }
 
-  dataShering() {}
+  loadMore = () => {
+    this.setState(prevState => ({
+      page: prevState.page + 1,
+    }));
+  };
 
   render() {
-    const { error, isLoading } = this.state;
+    const { error, isLoading, page, pages } = this.state;
     return (
-      <GalleryList className="gallery">
-        {this.state.data.map(({ webformatURL, largeImageURL, id }) => {
-          return (
-            <ImageGalleryItem
-              key={id}
-              smallImg={webformatURL}
-              bigImg={largeImageURL}
-            ></ImageGalleryItem>
-          );
-        })}
-        {error && <p style={{ color: 'red' }}>{error}</p>}
+      <>
+        <GalleryList className="gallery">
+          {this.state.data.map(({ webformatURL, largeImageURL, id }) => {
+            return (
+              <ImageGalleryItem
+                key={id}
+                smallImg={webformatURL}
+                bigImg={largeImageURL}
+              ></ImageGalleryItem>
+            );
+          })}
+          {error && <p style={{ color: 'red' }}>{error}</p>}
+        </GalleryList>
+        {page < pages && <Button onClick={this.loadMore}></Button>}
         {isLoading && (
           <Vortex
             visible={true}
@@ -58,7 +77,7 @@ export class ImageGallery extends Component {
             colors={['yellow', 'blue', 'yellow', 'blue', 'blue', 'yellow']}
           />
         )}
-      </GalleryList>
+      </>
     );
   }
 }
