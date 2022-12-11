@@ -1,35 +1,64 @@
 import { Component } from 'react';
-import axios from 'axios';
-import { ImageItem } from 'components/ImageGalleryItem/ImageItem';
+import { ImageGalleryItem } from 'components/ImageGalleryItem/ImageGalleryItem';
 
-axios.defaults.baseURL = 'https://pixabay.com/api/?';
-const API_KEY = 'key=30638749-d35f41ebb6e3ac5e796b8db8e';
-const DEFAULT_OPTIONS = 'image_type=photo&orientation=horizontal&per_page=12';
+import { getImeges } from 'components/Api/Api';
+import { GalleryList } from './ImageGallery.styled';
+import { Vortex } from 'react-loader-spinner';
+// import 'react-loader-spinner/dist/loader/css/react-spinner-loader.css';
 
 export class ImageGallery extends Component {
   state = {
     page: 1,
-    totalPages: 0,
     data: [],
+    isLoading: false,
+    error: null,
   };
 
   async componentDidUpdate(prevProps) {
-    if (prevProps.searchQuery !== this.props.searchQuery) {
-      const { searchQuery } = this.props;
-      const { page } = this.state;
+    const { searchQuery } = this.props;
+    const { page } = this.state;
 
-      const { data } = await axios.get(
-        `/q=${searchQuery}&page=${page}&${API_KEY}&${DEFAULT_OPTIONS}`
-      );
-      this.setState({ data: data.hits });
+    if (prevProps.searchQuery !== searchQuery) {
+      this.setState({ isLoading: true });
+      try {
+        const data = await getImeges(searchQuery, page);
+        this.setState({ data });
+      } catch (error) {
+        this.setState({ error: 'от халепа, додаток впав' });
+      } finally {
+        this.setState({ isLoading: false });
+      }
     }
   }
 
+  dataShering() {}
+
   render() {
+    const { error, isLoading } = this.state;
     return (
-      <ul className="gallery">
-        <ImageItem data={this.state.data}></ImageItem>
-      </ul>
+      <GalleryList className="gallery">
+        {this.state.data.map(({ webformatURL, largeImageURL, id }) => {
+          return (
+            <ImageGalleryItem
+              key={id}
+              smallImg={webformatURL}
+              bigImg={largeImageURL}
+            ></ImageGalleryItem>
+          );
+        })}
+        {error && <p style={{ color: 'red' }}>{error}</p>}
+        {isLoading && (
+          <Vortex
+            visible={true}
+            height="300"
+            width="300"
+            ariaLabel="vortex-loading"
+            wrapperStyle={{}}
+            wrapperClass="vortex-wrapper"
+            colors={['yellow', 'blue', 'yellow', 'blue', 'blue', 'yellow']}
+          />
+        )}
+      </GalleryList>
     );
   }
 }
