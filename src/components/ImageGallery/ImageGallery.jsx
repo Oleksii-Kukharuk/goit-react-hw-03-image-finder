@@ -32,9 +32,6 @@ export class ImageGallery extends Component {
         }
         const totalPages = Math.round(data.total / 12);
         this.setState({ pages: totalPages });
-        // if (this.state.data.length === 0) {
-        //   this.setState({ data: data.hits });
-        // }
         this.setState(prevState => ({
           data: [...prevState.data, ...data.hits],
         }));
@@ -63,6 +60,7 @@ export class ImageGallery extends Component {
                 key={id}
                 smallImg={webformatURL}
                 bigImg={largeImageURL}
+                onSelect={this.props.onSelect}
               ></ImageGalleryItem>
             );
           })}

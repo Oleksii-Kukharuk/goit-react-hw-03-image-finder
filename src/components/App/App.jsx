@@ -10,7 +10,7 @@ import { Modal } from 'components/Modal/Modal';
 export class App extends Component {
   state = {
     search: '',
-    modal: false,
+    selectedImage: null,
   };
 
   onSeachInfo = data => {
@@ -21,17 +21,27 @@ export class App extends Component {
     this.setState({ search: search });
   };
 
+  selectImage = imgUrl => {
+    this.setState({ selectedImage: imgUrl });
+  };
+
   render() {
-    const { modal } = this.state;
+    const { selectedImage } = this.state;
     return (
       <ContainerApp>
         <Searchbar onSubmit={this.onFormSubmit} />
         <ImageGallery
           searchQuery={this.state.search}
           onChange={this.onSeachInfo}
+          onSelect={this.selectImage}
         />
         <ToastContainer autoClose={4000} />
-        {modal && <Modal />}
+        {selectedImage !== null && (
+          <Modal
+            isOpen={selectedImage}
+            onClose={() => this.selectImage(null)}
+          />
+        )}
       </ContainerApp>
     );
   }
