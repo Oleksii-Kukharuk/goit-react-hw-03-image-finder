@@ -32,9 +32,9 @@ export class ImageGallery extends Component {
         }
         const totalPages = Math.round(data.total / 12);
         this.setState({ pages: totalPages });
-        if (this.state.data.length === 0) {
-          this.setState({ data: data.hits });
-        }
+        // if (this.state.data.length === 0) {
+        //   this.setState({ data: data.hits });
+        // }
         this.setState(prevState => ({
           data: [...prevState.data, ...data.hits],
         }));
