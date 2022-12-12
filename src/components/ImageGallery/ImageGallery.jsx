@@ -21,7 +21,7 @@ export class ImageGallery extends Component {
     const { page } = this.state;
 
     if (prevProps.searchQuery !== searchQuery) {
-      this.setState({ page: 1 });
+      this.setState({ page: 1, data: [] });
     }
     if (prevProps.searchQuery !== searchQuery || prevState.page !== page) {
       this.setState({ isLoading: true });
@@ -32,9 +32,12 @@ export class ImageGallery extends Component {
         }
         const totalPages = Math.round(data.total / 12);
         this.setState({ pages: totalPages });
-        this.setState({
-          data: data.hits,
-        });
+        if (this.state.data.length === 0) {
+          this.setState({ data: data.hits });
+        }
+        this.setState(prevState => ({
+          data: [...prevState.data, ...data.hits],
+        }));
       } catch (error) {
         this.setState({ error: 'от халепа, додаток впав' });
       } finally {
