@@ -1,7 +1,7 @@
 import { Component } from 'react';
-import { ImageGalleryItem } from 'components/ImageGalleryItem/ImageGalleryItem';
+import { ImageGalleryItem } from 'components/ImageGallery/ImageGalleryItem/ImageGalleryItem';
 
-import { getImeges } from 'components/Api/Api';
+import { getImeges } from 'components/services/Api/Api';
 import { GalleryList } from './ImageGallery.styled';
 import { Vortex } from 'react-loader-spinner';
 import { Button } from 'components/Button/Button';
